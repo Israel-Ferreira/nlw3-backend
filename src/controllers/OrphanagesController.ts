@@ -9,8 +9,19 @@ export default {
 
         const orphanagesRepo = await getRepository(Orphanage)
 
+        console.log(req.files);
 
-        const newOrphanage = orphanagesRepo.create(orphanage);
+        const reqImages =  req.files as Express.Multer.File[];
+        const images =  reqImages.map(image => {
+            return {path: image.filename}
+        })
+
+        console.log(images)
+
+
+
+        const newOrphanage = orphanagesRepo.create({...orphanage, images});
+
 
         try {
             await orphanagesRepo.save(newOrphanage)
