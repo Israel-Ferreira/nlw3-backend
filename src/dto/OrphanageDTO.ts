@@ -4,6 +4,7 @@ import ImageDTO from "./ImageDTO";
 
 export default {
     render(orphanage: Orphanage){
+
         return {...orphanage, images: ImageDTO.renderMany(orphanage.images)}
     },
 

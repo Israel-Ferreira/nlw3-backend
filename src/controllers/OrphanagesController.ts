@@ -2,6 +2,8 @@ import { Request, Response } from 'express'
 import { getRepository } from "typeorm";
 import Orphanage from "../models/Orphanage";
 
+import * as Yup from 'yup'
+
 import OrphanagesDTO from '../dto/OrphanageDTO'
 
 
@@ -13,16 +15,31 @@ export default {
 
         console.log(req.files);
 
-        const reqImages =  req.files as Express.Multer.File[];
-        const images =  reqImages.map(image => {
-            return {path: image.filename}
+        const reqImages = req.files as Express.Multer.File[];
+        const images = reqImages.map(image => {
+            return { path: image.filename }
         })
 
-        console.log(images)
+        const validationSchema = Yup.object().shape({
+            name: Yup.string().required(),
+            latitude: Yup.number().required(),
+            longitude: Yup.number().required(),
+            about: Yup.string().required().max(300),
+            instructions: Yup.string().required(),
+            open_on_weekends: Yup.boolean().required(),
+            opening_hours: Yup.string().required(),
+            images: Yup.array(
+                Yup.object().shape({
+                    path: Yup.string().required()
+                })
+            )
+        })
 
 
+        await validationSchema.validate(orphanage,  {abortEarly: false})
 
-        const newOrphanage = orphanagesRepo.create({...orphanage, images});
+
+        const newOrphanage = orphanagesRepo.create({ ...orphanage, images });
 
 
         try {
@@ -34,20 +51,20 @@ export default {
         }
     },
 
-    async getAll(req: Request, res : Response){
+    async getAll(req: Request, res: Response) {
         const orphanagesRepo = await getRepository(Orphanage)
-        const orphanages = await orphanagesRepo.find({relations: ['images']})
+        const orphanages = await orphanagesRepo.find({ relations: ['images'] })
         res.status(200).json(orphanages);
     },
 
-    async getById(req : Request,res : Response) {
+    async getById(req: Request, res: Response) {
         const { id } = req.params;
 
         const orphanagesRepo = await getRepository(Orphanage)
-    
-    
-        const orphanage = await orphanagesRepo.findOneOrFail(id, {relations: ['images']});
-    
+
+
+        const orphanage = await orphanagesRepo.findOneOrFail(id, { relations: ['images'] });
+
 
         res.json(OrphanagesDTO.render(orphanage))
     }
