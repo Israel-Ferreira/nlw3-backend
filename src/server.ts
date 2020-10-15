@@ -1,5 +1,6 @@
 import express from 'express';
 import bodyParser from 'body-parser';
+import path from 'path'
 
 
 import "reflect-metadata"
@@ -21,6 +22,7 @@ app.get("/", (req,res,next) => {
     res.status(200).json({message: "Hello World"})
 })
 
+app.use('/storage', express.static(path.join(__dirname, '..', '/storage')))
 
 app.use("/orphanages", OrphanageRouter)
 

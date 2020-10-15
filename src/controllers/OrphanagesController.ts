@@ -2,6 +2,8 @@ import { Request, Response } from 'express'
 import { getRepository } from "typeorm";
 import Orphanage from "../models/Orphanage";
 
+import OrphanagesDTO from '../dto/OrphanageDTO'
+
 
 export default {
     async create(req: Request, res: Response) {
@@ -34,7 +36,7 @@ export default {
 
     async getAll(req: Request, res : Response){
         const orphanagesRepo = await getRepository(Orphanage)
-        const orphanages = await orphanagesRepo.find()
+        const orphanages = await orphanagesRepo.find({relations: ['images']})
         res.status(200).json(orphanages);
     },
 
@@ -44,9 +46,9 @@ export default {
         const orphanagesRepo = await getRepository(Orphanage)
     
     
-        const orphanage = await orphanagesRepo.findOneOrFail(id);
+        const orphanage = await orphanagesRepo.findOneOrFail(id, {relations: ['images']});
     
 
-        res.json(orphanage)
+        res.json(OrphanagesDTO.render(orphanage))
     }
 }
